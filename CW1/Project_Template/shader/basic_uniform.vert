@@ -33,6 +33,7 @@ vec3 Phong(vec3 n, vec4 pos)
     float dotProduct = max(dot(s, n), 0.0);
     vec3 diffuse = Light.Ld * Material.Kd * dotProduct;
     vec3 specular = vec3(0.0);
+    
     if (dotProduct > 0.0)
     {
         vec3 v = normalize(-pos.xyz);

@@ -17,6 +17,7 @@ using namespace std;
 using namespace glm;
 
 SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
+//SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f))) {}
 
 void SceneBasic_Uniform::initScene()
 {
@@ -27,17 +28,18 @@ void SceneBasic_Uniform::initScene()
 
     //initialise matrices
     model = mat4(1.0f);
-    view = lookAt(vec3(0.0f, 0.0f, 0.2f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+    view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+    //view = lookAt(vec3(0.5f, 0.75f, 0.75f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     projection = mat4(1.0f);
 
     //set the uniforms
     prog.setUniform("Light.Position", view * vec4(5.0f, 5.0f, 2.0f, 1.0f));
-    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
-    prog.setUniform("Material.Ka", 0.2f, 0.55f, 0.9f);
-    prog.setUniform("Material.Ks", 0.8f, 0.8f, 0.8f);
     prog.setUniform("Light.Ld", 1.0f, 1.0f, 1.0f);
     prog.setUniform("Light.La", 0.4f, 0.4f, 0.4f);
     prog.setUniform("Light.Ls", 1.0f, 1.0f, 1.0f);
+    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
+    prog.setUniform("Material.Ka", 0.2f, 0.55f, 0.9f);
+    prog.setUniform("Material.Ks", 0.8f, 0.8f, 0.8f);
     prog.setUniform("Material.Shininess", 100.0f);
 }
 
@@ -54,7 +56,7 @@ void SceneBasic_Uniform::compile()
 	}
 }
 
-void SceneBasic_Uniform::update(float t )
+void SceneBasic_Uniform::update(float t)
 {
 	//update your angle here
 }
@@ -64,6 +66,7 @@ void SceneBasic_Uniform::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setMatrices();
     torus.render();
+    //teapot.render();
 }
 
 void SceneBasic_Uniform::resize(int w, int h)

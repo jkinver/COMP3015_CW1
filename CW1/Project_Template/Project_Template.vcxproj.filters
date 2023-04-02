@@ -43,13 +43,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="helper\teapot.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="helper\torus.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="helper\trianglemesh.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,19 +83,19 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="helper\drawable.h">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClInclude>
     <ClInclude Include="helper\teapot.h">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClInclude>
     <ClInclude Include="helper\teapotdata.h">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClInclude>
     <ClInclude Include="helper\torus.h">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClInclude>
     <ClInclude Include="helper\trianglemesh.h">
-      <Filter>Header Files</Filter>
+      <Filter>helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
