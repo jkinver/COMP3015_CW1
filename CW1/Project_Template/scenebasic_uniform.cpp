@@ -111,6 +111,9 @@ void SceneBasic_Uniform::setMatrices()
     //set normal matrix
     prog.setUniform("NormalMatrix", mat3(vec3(mv[0]), vec3(mv[1]), vec3(mv[2])));
 
+    //set projection matrix
+    prog.setUniform("ProjectionMatrix", projection);
+
     //set the mvp matrix
     prog.setUniform("MVP", projection * mv);
 }
