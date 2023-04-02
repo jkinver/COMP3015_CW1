@@ -5,6 +5,8 @@ in vec3 FragNormal;
 
 layout (location = 0) out vec4 FragColor;
 
+vec3 Colour;
+
 uniform struct LightInfo
 {
     vec4 Position;
@@ -41,7 +43,7 @@ vec3 Phong(int light, vec3 n, vec4 pos)
 
 void main() 
 {
-    vec3 Colour = vec3(0.0);
+    Colour = vec3(0.0);
 
     //for loop for adding each component for the RGB of the model
     for (int i = 0; i < 3; i++)

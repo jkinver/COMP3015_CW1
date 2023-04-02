@@ -19,6 +19,9 @@ void GetCameraSpaceValues(out vec3 n, out vec4 pos)
 
 void main()
 {
+    //FragPosition = vec4(VertexPosition, 1.0);             //?????????????
+    //FragNormal = VertexNormal;                            //?????????????
+
     GetCameraSpaceValues(FragNormal, FragPosition);
 
     gl_Position = MVP * vec4(VertexPosition, 1.0); 
