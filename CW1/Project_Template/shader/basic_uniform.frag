@@ -2,6 +2,10 @@
 
 in vec4 FragPosition;
 in vec3 FragNormal;
+in vec2 TexCoord;
+
+layout (binding = 0 ) uniform sampler2D Tex1;
+layout (binding = 1 ) uniform sampler2D Tex2;
 
 layout (location = 0) out vec4 FragColor;
 
@@ -55,10 +59,14 @@ vec3 Phong(int light, vec3 n, vec4 pos)
 
 vec3 BlinnPhong(int light, vec3 n, vec4 pos)
 {
-    vec3 ambient = lights[light].La * Material.Ka;
+    vec3 texColour = texture(Tex1, TexCoord).rgb;
+    //vec4 texColour2 = texture(Tex2, TexCoord);
+    //vec3 mixedColour = mix(texColour.rgb, texColour2.rgb, texColour2.a);
+
+    vec3 ambient = lights[light].La * Material.Ka * texColour;
     vec3 s = normalize(vec3(lights[light].Position - pos));
     float dotProduct = max(dot(s, n), 0.0);
-    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct;
+    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct * texColour;
     vec3 specular = vec3(0.0);
     
     if (dotProduct > 0.0)

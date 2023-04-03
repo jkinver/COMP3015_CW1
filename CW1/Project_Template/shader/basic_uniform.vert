@@ -2,9 +2,11 @@
 
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec3 VertexNormal;
+layout (location = 2) in vec2 VertexTexCoord;
 
 out vec4 FragPosition;
 out vec3 FragNormal;
+out vec2 TexCoord;
 
 uniform mat4 ModelViewMatrix;
 uniform mat3 NormalMatrix;
@@ -19,11 +21,13 @@ void GetCameraSpaceValues(out vec3 n, out vec4 pos)
 
 void main()
 {
+    TexCoord = VertexTexCoord;
+
     //FragPosition = vec4(VertexPosition, 1.0);             //?????????????
     //FragNormal = VertexNormal;                            //?????????????
 
-    FragNormal = normalize( NormalMatrix * VertexNormal);
     FragPosition = (ModelViewMatrix * vec4(VertexPosition,1.0));
+    FragNormal = normalize( NormalMatrix * VertexNormal);
 
     GetCameraSpaceValues(FragNormal, FragPosition);
 

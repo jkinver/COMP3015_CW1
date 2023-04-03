@@ -11,15 +11,16 @@ using std::endl;
 
 #include <glm/gtc/matrix_transform.hpp>
 #include "helper/glutils.h"
+#include "helper/texture.h"
 
 using namespace std;
 using namespace glm;
 
 //SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
 //SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.0f))) {}
-SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f), teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
+SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) //teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
 {
-    mesh = ObjMesh::load("../Project_Template/media/pig_triangulated.obj", true);
+    mesh = ObjMesh::load("../Project_Template/media/Spiky Ball.obj", true);
 }
 
 void SceneBasic_Uniform::initScene()
@@ -34,7 +35,7 @@ void SceneBasic_Uniform::initScene()
     model = rotate(model, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
     //view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //torus view
     //view = lookAt(vec3(0.0f, 4.0f, 5.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //teapot view
-    view = lookAt(vec3(5.5f, 5.75f, 5.75f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //plane view
+    view = lookAt(vec3(3.5f, 3.75f, 3.75f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //plane view
     projection = mat4(1.0f);
 
     float x, z;
@@ -48,17 +49,27 @@ void SceneBasic_Uniform::initScene()
     }
 
     //set the light uniforms
-    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.2f));
-    prog.setUniform("lights[1].La", vec3(0.0f, 0.5f, 0.0f));
-    prog.setUniform("lights[2].La", vec3(0.2f, 0.0f, 0.0f));
+    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].La", vec3(0.0f, 0.75f, 0.0f));
+    prog.setUniform("lights[2].La", vec3(0.25f, 0.0f, 0.0f));
 
-    prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.5f));
-    prog.setUniform("lights[1].Ld", vec3(0.0f, 1.0f, 0.0f));
-    prog.setUniform("lights[2].Ld", vec3(1.0f, 0.0f, 0.0f));
+    prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].Ld", vec3(0.0f, 0.8f, 0.0f));
+    prog.setUniform("lights[2].Ld", vec3(0.8f, 0.0f, 0.0f));
 
-    prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.5f));
-    prog.setUniform("lights[1].Ls", vec3(0.0f, 1.0f, 0.0f));
-    prog.setUniform("lights[2].Ls", vec3(1.0f, 0.0f, 0.0f));
+    prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.6f));
+    prog.setUniform("lights[1].Ls", vec3(0.0f, 0.6f, 0.0f));
+    prog.setUniform("lights[2].Ls", vec3(0.6f, 0.0f, 0.0f));
+
+    //add, activate, and bind the first texture
+    GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    //add, activate, and bind the second texture
+    /*GLuint textureID2 = Texture::loadTexture("media/texture/moss.png");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID2);*/
 
     //set spotlight uniforms
     /*prog.setUniform("Spot.La", vec3(0.5f));
@@ -97,49 +108,29 @@ void SceneBasic_Uniform::render()
     prog.setUniform("Spot.Position", vec3(view * lightPos));
     mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
     prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));*/
-    
-    //set teapot material uniforms
-    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
-    prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
-    prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
-    prog.setUniform("Material.Shininess", 100.0f);
-
-    //set teapot
-    model = mat4(1.0f);
-    model = glm::translate(model, vec3(0.0f, 0.0f, -2.0f));
-    model = glm::rotate(model, glm::radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-    setMatrices();
-    teapot.render();
-
-    //set torus material uniforms
-    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
-    prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
-    prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
-    prog.setUniform("Material.Shininess", 100.0f);
-
-    //set torus
-    model = mat4(1.0f);
-    model = glm::translate(model, vec3(-1.0f, 0.75f, 3.0f));
-    model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-    setMatrices();
-    torus.render();
 
     //set mesh material uniforms
-    prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);
-    prog.setUniform("Material.Ka", 0.9f, 0.9f, 0.9f);
+    prog.setUniform("Material.Kd", 0.75f, 0.75f, 0.75f);
+    prog.setUniform("Material.Ka", 0.25f, 0.25f, 0.25f);
     prog.setUniform("Material.Ks", 0.5f, 0.5f, 0.5f);
-    prog.setUniform("Material.Shininess", 5.0f);
+    prog.setUniform("Material.Shininess", 105.0f);
     
     //set mesh model
     model = mat4(1.0f);
-    model = rotate(model, radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
+    model = rotate(model, radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
+    model = translate(model, vec3(0.0f, 2.0f, 0.0f));
     setMatrices();
+
+    //add, activate, and bind the first texture
+    GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     mesh->render();
 
     //set plane material uniforms
-    prog.setUniform("Material.Kd", 0.7f, 0.7f, 0.7f);
-    prog.setUniform("Material.Ka", 0.9f, 0.9f, 0.9f);
+    prog.setUniform("Material.Kd", 0.5f, 0.5f, 0.5f);
+    prog.setUniform("Material.Ka", 1.0f, 1.0f, 1.0f);
     prog.setUniform("Material.Ks", 0.2f, 0.2f, 0.2f);
     prog.setUniform("Material.Shininess", 180.0f);
 
@@ -147,6 +138,11 @@ void SceneBasic_Uniform::render()
     model = mat4(1.0f);
     model = translate(model, vec3(0.0f, -0.45f, 0.0f));
     setMatrices();
+
+    textureID = Texture::loadTexture("media/texture/brick1.jpg");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     plane.render();
 }
 

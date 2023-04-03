@@ -9,6 +9,7 @@
 #include "helper/teapot.h"
 #include "helper/plane.h"
 #include "helper/objmesh.h"
+#include "helper/cube.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -18,10 +19,11 @@ class SceneBasic_Uniform : public Scene
 {
 private:
     GLSLProgram prog;
-    Torus torus;
-    Teapot teapot;
+    //Torus torus;
+    //Teapot teapot;
     Plane plane;
     unique_ptr<ObjMesh> mesh;
+    //Cube cube;
 
     void compile();
 
