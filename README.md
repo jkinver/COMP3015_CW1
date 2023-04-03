@@ -14,6 +14,6 @@ The vertex and fragments shaders are what define information regarding colour an
 Briefly, a note on what marking band seems most fitting from my perspective as the student. The 40-50 mark range is satisfied completely, according to the rubric, and hence I believe my mark should push into the 50 – 60 range. The presence of multiple lights and textures may lend me points too, but the lack of a skybox (instead, I’ve opted for a plane) prevents breaching into the 60 – 70 range.
 
 ## Unlisted YouTube video:
-
+https://youtu.be/nkQmhyuFh5Y
  
 
