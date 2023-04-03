@@ -22,6 +22,9 @@ void main()
     //FragPosition = vec4(VertexPosition, 1.0);             //?????????????
     //FragNormal = VertexNormal;                            //?????????????
 
+    FragNormal = normalize( NormalMatrix * VertexNormal);
+    FragPosition = (ModelViewMatrix * vec4(VertexPosition,1.0));
+
     GetCameraSpaceValues(FragNormal, FragPosition);
 
     gl_Position = MVP * vec4(VertexPosition, 1.0); 

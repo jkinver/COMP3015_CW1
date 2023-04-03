@@ -17,7 +17,7 @@ using namespace glm;
 
 //SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
 //SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.0f))) {}
-SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) 
+SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) //, teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
 {
     mesh = ObjMesh::load("../Project_Template/media/pig_triangulated.obj", true);
 }
@@ -60,6 +60,13 @@ void SceneBasic_Uniform::initScene()
     prog.setUniform("lights[1].Ls", vec3(0.0f, 1.0f, 0.0f));
     prog.setUniform("lights[2].Ls", vec3(1.0f, 0.0f, 0.0f));
 
+    //set spotlight uniforms
+    /*prog.setUniform("Spot.La", vec3(0.5f));
+    prog.setUniform("Spot.Ls", vec3(0.9f));
+    prog.setUniform("Spot.Ld", vec3(0.9f));
+    prog.setUniform("Spot.Exponent", 50.0f);
+    prog.setUniform("Spot.Cutoff", glm::radians(15.0f));*/
+
 }
 
 void SceneBasic_Uniform::compile()
@@ -82,13 +89,48 @@ void SceneBasic_Uniform::update(float t)
 
 void SceneBasic_Uniform::render()
 {
+    //clear the colour and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    //set the material uniforms
+    ////set the position and direction of the spotlight
+    //vec4 lightPos = vec4(0.0f, 10.0f, 0.0f, 1.0f);
+    //prog.setUniform("Spot.Position", vec3(view * lightPos));
+    //mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
+    //prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));
+    
+    ////set teapot material uniforms
+    //prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
+    //prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
+    //prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
+    //prog.setUniform("Material.Shininess", 100.0f);
+
+    ////set teapot
+    //model = mat4(1.0f);
+    //model = glm::translate(model, vec3(0.0f, 0.0f, -2.0f));
+    //model = glm::rotate(model, glm::radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
+    //model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+    //setMatrices();
+    //teapot.render();
+
+    ////set torus material uniforms
+    //prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
+    //prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
+    //prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
+    //prog.setUniform("Material.Shininess", 100.0f);
+
+    ////set torus
+    //model = mat4(1.0f);
+    //model = glm::translate(model, vec3(-1.0f, 0.75f, 3.0f));
+    //model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+    //setMatrices();
+    //torus.render();
+
+
+    //set mesh material uniforms
     prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);
     prog.setUniform("Material.Ka", 0.9f, 0.9f, 0.9f);
     prog.setUniform("Material.Ks", 0.5f, 0.5f, 0.5f);
-    prog.setUniform("Material.Shininess", 180.0f);
+    prog.setUniform("Material.Shininess", 5.0f);
     
     //set mesh model
     model = mat4(1.0f);
@@ -96,10 +138,10 @@ void SceneBasic_Uniform::render()
     setMatrices();
     mesh->render();
 
-    //set the material uniforms
-    prog.setUniform("Material.Kd", 0.1f, 0.1f, 0.1f);
+    //set plane material uniforms
+    prog.setUniform("Material.Kd", 0.7f, 0.7f, 0.7f);
     prog.setUniform("Material.Ka", 0.9f, 0.9f, 0.9f);
-    prog.setUniform("Material.Ks", 0.1f, 0.1f, 0.1f);
+    prog.setUniform("Material.Ks", 0.2f, 0.2f, 0.2f);
     prog.setUniform("Material.Shininess", 180.0f);
 
     //set plane model
@@ -107,9 +149,6 @@ void SceneBasic_Uniform::render()
     model = translate(model, vec3(0.0f, -0.45f, 0.0f));
     setMatrices();
     plane.render();
-
-    //torus.render();
-    //teapot.render();
 }
 
 void SceneBasic_Uniform::resize(int w, int h)

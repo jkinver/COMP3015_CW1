@@ -23,10 +23,21 @@ uniform struct MaterialInfo
     float Shininess;    //material shininess
 }   Material;
 
+uniform struct SpotInfo
+{
+    vec3 Position;      //spotlight position
+    vec3 Direction;     //spotlight direction
+    vec3 La;            //spotlight ambient
+    vec3 Ld;            //spotlight diffuse
+    vec3 Ls;            //spotlight specular
+    float Exponent;
+    float Cutoff;
+}   Spot;
+
 vec3 Phong(int light, vec3 n, vec4 pos)
 {
     vec3 ambient = lights[light].La * Material.Ka;
-    vec3 s = normalize(vec3(lights[light].Position - pos * lights[light].Position.w));
+    vec3 s = normalize(vec3(lights[light].Position - pos));
     float dotProduct = max(dot(s, n), 0.0);
     vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct;
     vec3 specular = vec3(0.0);
@@ -41,6 +52,24 @@ vec3 Phong(int light, vec3 n, vec4 pos)
     return ambient + diffuse + specular;
 }
 
+vec3 BlinnPhong(int light, vec3 n, vec4 pos)
+{
+    vec3 ambient = lights[light].La * Material.Ka;
+    vec3 s = normalize(vec3(lights[light].Position - pos));
+    float dotProduct = max(dot(s, n), 0.0);
+    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct;
+    vec3 specular = vec3(0.0);
+    
+    if (dotProduct > 0.0)
+    {
+        vec3 v = normalize(-pos.xyz);
+        vec3 h = normalize(v + s);
+        specular = lights[light].Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
+    }
+    
+    return ambient + diffuse + specular;
+}
+
 void main() 
 {
     Colour = vec3(0.0);
@@ -48,7 +77,7 @@ void main()
     //for loop for adding each component for the RGB of the model
     for (int i = 0; i < 3; i++)
     {
-        Colour += Phong(i, FragNormal, FragPosition);
+        Colour += BlinnPhong(i, FragNormal, FragPosition);
     }
 
     FragColor = vec4(Colour, 1.0); //displaying the finalised colour
