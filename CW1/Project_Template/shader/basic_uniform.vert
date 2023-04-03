@@ -23,9 +23,6 @@ void main()
 {
     TexCoord = VertexTexCoord;
 
-    //FragPosition = vec4(VertexPosition, 1.0);             //?????????????
-    //FragNormal = VertexNormal;                            //?????????????
-
     FragPosition = (ModelViewMatrix * vec4(VertexPosition,1.0));
     FragNormal = normalize( NormalMatrix * VertexNormal);
 
