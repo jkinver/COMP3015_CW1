@@ -17,7 +17,7 @@ using namespace glm;
 
 //SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
 //SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.0f))) {}
-SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) //, teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
+SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f), teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
 {
     mesh = ObjMesh::load("../Project_Template/media/pig_triangulated.obj", true);
 }
@@ -34,7 +34,7 @@ void SceneBasic_Uniform::initScene()
     model = rotate(model, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
     //view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //torus view
     //view = lookAt(vec3(0.0f, 4.0f, 5.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //teapot view
-    view = lookAt(vec3(0.5f, 0.75f, 0.75f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //plane view
+    view = lookAt(vec3(5.5f, 5.75f, 5.75f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //plane view
     projection = mat4(1.0f);
 
     float x, z;
@@ -92,39 +92,38 @@ void SceneBasic_Uniform::render()
     //clear the colour and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    ////set the position and direction of the spotlight
-    //vec4 lightPos = vec4(0.0f, 10.0f, 0.0f, 1.0f);
-    //prog.setUniform("Spot.Position", vec3(view * lightPos));
-    //mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
-    //prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));
+    //set the position and direction of the spotlight
+    /*vec4 lightPos = vec4(0.0f, 10.0f, 0.0f, 1.0f);
+    prog.setUniform("Spot.Position", vec3(view * lightPos));
+    mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
+    prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));*/
     
-    ////set teapot material uniforms
-    //prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
-    //prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
-    //prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
-    //prog.setUniform("Material.Shininess", 100.0f);
+    //set teapot material uniforms
+    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
+    prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
+    prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
+    prog.setUniform("Material.Shininess", 100.0f);
 
-    ////set teapot
-    //model = mat4(1.0f);
-    //model = glm::translate(model, vec3(0.0f, 0.0f, -2.0f));
-    //model = glm::rotate(model, glm::radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
-    //model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-    //setMatrices();
-    //teapot.render();
+    //set teapot
+    model = mat4(1.0f);
+    model = glm::translate(model, vec3(0.0f, 0.0f, -2.0f));
+    model = glm::rotate(model, glm::radians(45.0f), vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+    setMatrices();
+    teapot.render();
 
-    ////set torus material uniforms
-    //prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
-    //prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
-    //prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
-    //prog.setUniform("Material.Shininess", 100.0f);
+    //set torus material uniforms
+    prog.setUniform("Material.Kd", 0.2f, 0.55f, 0.9f);
+    prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
+    prog.setUniform("Material.Ka", 0.2f * 0.3f, 0.55f * 0.3f, 0.9f * 0.3f);
+    prog.setUniform("Material.Shininess", 100.0f);
 
-    ////set torus
-    //model = mat4(1.0f);
-    //model = glm::translate(model, vec3(-1.0f, 0.75f, 3.0f));
-    //model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-    //setMatrices();
-    //torus.render();
-
+    //set torus
+    model = mat4(1.0f);
+    model = glm::translate(model, vec3(-1.0f, 0.75f, 3.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+    setMatrices();
+    torus.render();
 
     //set mesh material uniforms
     prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);

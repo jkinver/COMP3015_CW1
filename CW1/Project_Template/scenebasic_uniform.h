@@ -18,8 +18,8 @@ class SceneBasic_Uniform : public Scene
 {
 private:
     GLSLProgram prog;
-    //Torus torus;
-    //Teapot teapot;
+    Torus torus;
+    Teapot teapot;
     Plane plane;
     unique_ptr<ObjMesh> mesh;
 

@@ -6,6 +6,7 @@ in vec3 FragNormal;
 layout (location = 0) out vec4 FragColor;
 
 vec3 Colour;
+vec3 SpotColour;
 
 uniform struct LightInfo
 {
@@ -25,13 +26,13 @@ uniform struct MaterialInfo
 
 uniform struct SpotInfo
 {
-    vec3 Position;      //spotlight position
+    vec4 Position;      //spotlight position
     vec3 Direction;     //spotlight direction
+    float Cutoff;       //spotlight cutoff angle
     vec3 La;            //spotlight ambient
     vec3 Ld;            //spotlight diffuse
     vec3 Ls;            //spotlight specular
     float Exponent;
-    float Cutoff;
 }   Spot;
 
 vec3 Phong(int light, vec3 n, vec4 pos)
@@ -70,9 +71,42 @@ vec3 BlinnPhong(int light, vec3 n, vec4 pos)
     return ambient + diffuse + specular;
 }
 
+vec3 BlinnPhongSpot(vec3 n, vec4 pos)
+{
+    vec3 ambient = Spot.La * Material.Ka;
+    vec3 diffuse = vec3(0);
+    vec3 specular = vec3(0);
+
+    vec3 s = normalize(vec3(Spot.Position - pos));
+    float cosAngle = dot(-s, normalize(Spot.Direction));
+    float angle = acos(cosAngle);
+    float spotScale = 0.0;
+
+    if(angle < Spot.Cutoff)
+    {
+        spotScale = pow(cosAngle, Spot.Exponent);
+
+        float dotProduct = max(dot(s, n), 0.0);
+        diffuse = Spot.Ld * Material.Kd * dotProduct;
+        specular = vec3(0.0);
+    
+        if (dotProduct > 0.0)
+        {
+            vec3 v = normalize(-pos.xyz);
+            vec3 h = normalize(v + s);
+            specular = Spot.Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
+        }
+    }
+
+    
+    
+    return ambient + diffuse + specular;
+}
+
 void main() 
 {
     Colour = vec3(0.0);
+    SpotColour = vec3(0.0);
 
     //for loop for adding each component for the RGB of the model
     for (int i = 0; i < 3; i++)
@@ -81,4 +115,8 @@ void main()
     }
 
     FragColor = vec4(Colour, 1.0); //displaying the finalised colour
+
+    //SpotColour = BlinnPhongSpot(FragNormal, FragPosition);
+
+    //FragColor = vec4(SpotColour, 1.0);
 }
