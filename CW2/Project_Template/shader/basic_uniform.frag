@@ -14,6 +14,7 @@ vec3 SpotColour;
 
 uniform float EdgeThreshold;
 uniform int Pass;
+uniform float Weight[5];
 
 const vec3 luminance = vec3(0.2126f, 0.7152f, 0.0722f);
 
@@ -23,7 +24,7 @@ uniform struct LightInfo
     vec3 La;            //ambient light
     vec3 Ld;            //diffuse light
     vec3 Ls;            //specular light
-}   lights[3];
+}   light;
 
 uniform struct MaterialInfo
 {
@@ -44,23 +45,23 @@ uniform struct SpotInfo
     float Exponent;
 }   Spot;
 
-vec3 BlinnPhong(int light, vec3 n, vec4 pos)
+vec3 BlinnPhong(vec3 n, vec4 pos)
 {
     //vec3 texColour = texture(Tex1, TexCoord).rgb;
     //vec4 texColour2 = texture(Tex2, TexCoord);
     //vec3 mixedColour = mix(texColour.rgb, texColour2.rgb, texColour2.a);
 
-    vec3 ambient = lights[light].La * Material.Ka; //* texColour;
-    vec3 s = normalize(vec3(lights[light].Position - pos));
+    vec3 ambient = light.La * Material.Ka; //* texColour;
+    vec3 s = normalize(vec3(light.Position - pos));
     float dotProduct = max(dot(s, n), 0.0);
-    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct; //* texColour;
+    vec3 diffuse = light.Ld * Material.Kd * dotProduct; //* texColour;
     vec3 specular = vec3(0.0);
     
     if (dotProduct > 0.0)
     {
         vec3 v = normalize(-pos.xyz);
         vec3 h = normalize(v + s);
-        specular = lights[light].Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
+        specular = light.Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
     }
     
     return ambient + diffuse + specular;
@@ -71,41 +72,39 @@ float Luminance(vec3 color)
     return dot(luminance, color);
 }
 
-vec4 EDPass1()
+vec4 Pass1()
 {
-    return vec4(BlinnPhong(1, normalize(FragNormal), FragPosition), 1.0f);
+    return vec4(BlinnPhong(normalize(FragNormal), FragPosition), 1.0f);
 }
 
-vec4 EDPass2()
+vec4 Pass2()
 {
-    //we grab a pixel to check if edge
-    ivec2 pix = ivec2(gl_FragCoord.xy); 
+    ivec2 pix = ivec2( gl_FragCoord.xy );
+    vec4 sum = texelFetch(Tex1, pix, 0) * Weight[0];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,1) ) * Weight[1];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,-1) ) * Weight[1];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,2) ) * Weight[2];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,-2) ) * Weight[2];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,3) ) * Weight[3];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,-3) ) * Weight[3];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,4) ) * Weight[4];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(0,-4) ) * Weight[4];
+    return sum;
+}
 
-    //pick neighboutring pixels for convolution filter
-    float s00 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,1)).rgb);
-    float s10 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,0)).rgb);
-    float s20 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,-1)).rgb);
-    float s01 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(0,1)).rgb);
-    float s21 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(0,-1)).rgb);
-    float s02 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,1)).rgb);
-    float s12 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,0)).rgb);
-    float s22 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,-1)).rgb);
-
-    float sx = s00 + 2 * s10 + s20 - (s02 + 2 * s12 + s22);
-    float sy = s00 + 2 * s01 + s02 - (s20 + 2 * s21 + s22);
-    float g = sx * sx + sy * sy;
-    
-    if( g > EdgeThreshold )
-    {
-        //edge is present
-        return vec4(1.0);
-    }  
-    else
-    {
-        //no edge is present
-        return vec4(0.0,0.0,0.0,1.0); 
-    }
-    
+vec4 Pass3()
+{
+    ivec2 pix = ivec2( gl_FragCoord.xy );
+    vec4 sum = texelFetch(Tex1, pix, 0) * Weight[0];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(1,0) ) * Weight[1];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(-1,0) ) * Weight[1];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(2,0) ) * Weight[2];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(-2,0) ) * Weight[2];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(3,0) ) * Weight[3];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(-3,0) ) * Weight[3];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(4,0) ) * Weight[4];
+    sum += texelFetchOffset(Tex1, pix, 0, ivec2(-4,0) ) * Weight[4];
+    return sum;
 }
 
 void main() 
@@ -113,26 +112,19 @@ void main()
     Colour = vec3(0.0);
     SpotColour = vec3(0.0);
 
-    //for loop for adding each component for the RGB of the model
-    for (int i = 0; i < 3; i++)
-    {
-        Colour += BlinnPhong(i, FragNormal, FragPosition);
-    }
+    Colour += BlinnPhong(FragNormal, FragPosition);
 
     //----------Edge Detection bit-------------
     if (Pass == 1)
     {
-        FragColor = EDPass1();
+        FragColor = Pass1();
     }
-    if (Pass == 2)
+    else if (Pass == 2)
     {
-        FragColor = EDPass2();
+        FragColor = Pass2();
     }
-
-
-    //FragColor = vec4(Colour, 1.0); //displaying the finalised colour
-
-    //SpotColour = BlinnPhongSpot(FragNormal, FragPosition);
-
-    //FragColor = vec4(SpotColour, 1.0);
+    else if (Pass == 3)
+    {
+        FragColor = Pass3();
+    }
 }

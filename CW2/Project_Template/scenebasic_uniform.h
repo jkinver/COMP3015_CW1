@@ -19,7 +19,7 @@ class SceneBasic_Uniform : public Scene
 {
 private:
     GLSLProgram prog;
-    GLuint fsQuad, fboHandle, renderTex;
+    GLuint fsQuad, intermediateTex, renderTex, renderFBO, intermediateFBO;
 
     //Torus torus;
     //Teapot teapot;
@@ -29,8 +29,10 @@ private:
 
     void compile();
     void setupFBO();
-    void EDPass1();
-    void EDPass2();
+    void Pass1();
+    void Pass2();
+    void Pass3();
+    float Gauss(float, float);
 
 public:
     SceneBasic_Uniform();

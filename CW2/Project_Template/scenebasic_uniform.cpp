@@ -111,7 +111,7 @@ void SceneBasic_Uniform::initScene()
     //---------------------------------------------------------
 
 
-    float x, z;
+    /*float x, z;
     for (int i = 0; i < 3; i++)
     {
         stringstream name;
@@ -119,33 +119,42 @@ void SceneBasic_Uniform::initScene()
         x = 2.0f * cosf((two_pi<float>() / 3) * i);
         z = 2.0f * sinf((two_pi<float>() / 3) * i);
         prog.setUniform(name.str().c_str(), view * vec4(x, 1.2f, z + 1.0f, 1.0f));
-    }
-
-    //set the light uniforms
-    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.8f));
-    prog.setUniform("lights[1].La", vec3(0.0f, 0.75f, 0.0f));
-    prog.setUniform("lights[2].La", vec3(0.25f, 0.0f, 0.0f));
-
-    prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.8f));
-    prog.setUniform("lights[1].Ld", vec3(0.0f, 0.8f, 0.0f));
-    prog.setUniform("lights[2].Ld", vec3(0.8f, 0.0f, 0.0f));
-
-    prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.6f));
-    prog.setUniform("lights[1].Ls", vec3(0.0f, 0.6f, 0.0f));
-    prog.setUniform("lights[2].Ls", vec3(0.6f, 0.0f, 0.0f));
+    }*/
 
     //add, activate, and bind the first texture
-    GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
+    /*GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    prog.setUniform("EdgeThreshold", 0.05f);
+    glBindTexture(GL_TEXTURE_2D, textureID);*/
+    
+    //set the light uniforms
+    prog.setUniform("light.La", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("light.Ld", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("light.Ls", vec3(0.0f, 0.0f, 0.6f));
+
+    float weights[5], sum, sigma2 = 8.0f;
+    // Compute and sum the weights
+    weights[0] = Gauss(0, sigma2);
+    sum = weights[0];
+    for (int i = 1; i < 5; i++) 
+    {
+        weights[i] = Gauss(float(i), sigma2);
+        sum += 2 * weights[i];
+    }
+    // Normalize the weights and set the uniform
+    for (int i = 0; i < 5; i++) 
+    {
+        std::stringstream uniName;
+        uniName << "Weight[" << i << "]";
+        float val = weights[i] / sum;
+        prog.setUniform(uniName.str().c_str(), val);
+    }
 }
 
 void SceneBasic_Uniform::setupFBO()
 {
     // Generate and bind the framebuffer
-    glGenFramebuffers(1, &fboHandle);
-    glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
+    glGenFramebuffers(1, &renderFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, renderFBO);
     // Create the texture object
     glGenTextures(1, &renderTex);
     glBindTexture(GL_TEXTURE_2D, renderTex);
@@ -166,6 +175,25 @@ void SceneBasic_Uniform::setupFBO()
         GL_RENDERBUFFER, depthBuf);
     // Set the targets for the fragment output variables
     GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+    glDrawBuffers(1, drawBuffers);
+    // Unbind the framebuffer, and revert to default framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Generate and bind the framebuffer
+    glGenFramebuffers(1, &intermediateFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
+    // Create the texture object
+    glGenTextures(1, &intermediateTex);
+    glActiveTexture(GL_TEXTURE0); // Use texture unit 0
+    glBindTexture(GL_TEXTURE_2D, intermediateTex);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    // Bind the texture to the FBO
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+        intermediateTex, 0);
+    // No depth buffer needed for this FBO
+    // Set the targets for the fragment output variables
     glDrawBuffers(1, drawBuffers);
     // Unbind the framebuffer, and revert to default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -230,9 +258,11 @@ void SceneBasic_Uniform::render()
 
     //plane.render();
 
-    EDPass1();
+    Pass1();
     glFlush();
-    EDPass2();
+    Pass2();
+    glFlush();
+    Pass3();
 }
 
 void SceneBasic_Uniform::resize(int w, int h)
@@ -259,7 +289,7 @@ void SceneBasic_Uniform::setMatrices()
     prog.setUniform("MVP", projection * mv);
 }
 
-void SceneBasic_Uniform::EDPass1()
+void SceneBasic_Uniform::Pass1()
 {
     prog.setUniform("Pass", 1);
 
@@ -303,10 +333,10 @@ void SceneBasic_Uniform::EDPass1()
     plane.render();
 }
 
-void SceneBasic_Uniform::EDPass2()
+void SceneBasic_Uniform::Pass2()
 {
     prog.setUniform("Pass", 2);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderTex);
     glDisable(GL_DEPTH_TEST);
@@ -318,5 +348,27 @@ void SceneBasic_Uniform::EDPass2()
     // Render the full-screen quad
     glBindVertexArray(fsQuad);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+}
+
+void SceneBasic_Uniform::Pass3()
+{
+    prog.setUniform("Pass", 3);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, intermediateTex);
+    glClear(GL_COLOR_BUFFER_BIT);
+    model = mat4(1.0f);
+    view = mat4(1.0f);
+    projection = mat4(1.0f);
+    setMatrices();
+    // Render the full-screen quad
+    glBindVertexArray(fsQuad);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+float SceneBasic_Uniform::Gauss(float x, float sigma2)
+{
+    double coeff = 1.0 / (glm::two_pi<double>() * sigma2);
+    double expon = -(x * x) / (2.0 * sigma2);
+    return (float)(coeff * exp(expon));
 }
