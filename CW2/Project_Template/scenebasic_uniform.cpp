@@ -309,7 +309,7 @@ void SceneBasic_Uniform::Pass1()
     view = glm::lookAt(vec3(7.0f * cos(angle), 4.0f, 7.0f * sin(angle)), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     projection = glm::perspective(glm::radians(60.0f), (float)width / height, 0.3f, 100.0f);
 
-    prog.setUniform("Light.Position", vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    //prog.setUniform("Light.Position", vec4(0.0f, 0.0f, 0.0f, 1.0f));
     prog.setUniform("Material.Kd", 0.9f, 0.9f, 0.9f);
     prog.setUniform("Material.Ks", 0.95f, 0.95f, 0.95f);
     prog.setUniform("Material.Ka", 0.1f, 0.1f, 0.1f);
