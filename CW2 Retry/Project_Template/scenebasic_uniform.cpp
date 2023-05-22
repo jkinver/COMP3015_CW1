@@ -19,7 +19,6 @@ using namespace glm;
 //SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
 //SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.0f))) {}
 SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) //teapot(14, mat4(1.0f))
-
 {
     mesh = ObjMesh::load("media/Spiky Ball.obj", true);
 }

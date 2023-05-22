@@ -18,7 +18,7 @@ using namespace glm;
 
 //SceneBasic_Uniform::SceneBasic_Uniform() : torus(0.7f, 0.3f, 50.0f, 50.0f) {}
 //SceneBasic_Uniform::SceneBasic_Uniform() : teapot(50, translate(mat4(1.0f), vec3(0.0f, 0.0f, 1.0f))) {}
-SceneBasic_Uniform::SceneBasic_Uniform() : plane(10.0f, 10.0f, 100.0f, 100.0f) //teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
+SceneBasic_Uniform::SceneBasic_Uniform() : plane(0.5f, 0.5f, 1.0f, 1.0f) //teapot(14, mat4(1.0f)), torus(1.75f * 0.75f, 0.75f, 50, 50)
 {
     mesh = ObjMesh::load("media/Spiky Ball.obj", true);
 }
@@ -48,18 +48,18 @@ void SceneBasic_Uniform::initScene()
     //    prog.setUniform(name.str().c_str(), view * vec4(x, 1.2f, z + 1.0f, 1.0f));
     //}
 
-    ////set the light uniforms
-    //prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.8f));
-    //prog.setUniform("lights[1].La", vec3(0.0f, 0.75f, 0.0f));
-    //prog.setUniform("lights[2].La", vec3(0.25f, 0.0f, 0.0f));
+    //set the light uniforms
+    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].La", vec3(0.0f, 0.75f, 0.0f));
+    prog.setUniform("lights[2].La", vec3(0.25f, 0.0f, 0.0f));
 
-    //prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.8f));
-    //prog.setUniform("lights[1].Ld", vec3(0.0f, 0.8f, 0.0f));
-    //prog.setUniform("lights[2].Ld", vec3(0.8f, 0.0f, 0.0f));
+    prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].Ld", vec3(0.0f, 0.8f, 0.0f));
+    prog.setUniform("lights[2].Ld", vec3(0.8f, 0.0f, 0.0f));
 
-    //prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.6f));
-    //prog.setUniform("lights[1].Ls", vec3(0.0f, 0.6f, 0.0f));
-    //prog.setUniform("lights[2].Ls", vec3(0.6f, 0.0f, 0.0f));
+    prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.6f));
+    prog.setUniform("lights[1].Ls", vec3(0.0f, 0.6f, 0.0f));
+    prog.setUniform("lights[2].Ls", vec3(0.6f, 0.0f, 0.0f));
 
     ////add, activate, and bind the first texture
     //GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
@@ -111,7 +111,7 @@ void SceneBasic_Uniform::initScene()
     //---------------------------------------------------------
 
 
-    /*float x, z;
+    float x, z;
     for (int i = 0; i < 3; i++)
     {
         stringstream name;
@@ -119,17 +119,25 @@ void SceneBasic_Uniform::initScene()
         x = 2.0f * cosf((two_pi<float>() / 3) * i);
         z = 2.0f * sinf((two_pi<float>() / 3) * i);
         prog.setUniform(name.str().c_str(), view * vec4(x, 1.2f, z + 1.0f, 1.0f));
-    }*/
+    }
 
     //add, activate, and bind the first texture
-    /*GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
+    GLuint textureID = Texture::loadTexture("media/texture/cement.jpg");
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);*/
+    glBindTexture(GL_TEXTURE_2D, textureID);
     
     //set the light uniforms
-    prog.setUniform("light.La", vec3(0.0f, 0.0f, 0.8f));
-    prog.setUniform("light.Ld", vec3(0.0f, 0.0f, 0.8f));
-    prog.setUniform("light.Ls", vec3(0.0f, 0.0f, 0.6f));
+    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].La", vec3(0.0f, 0.75f, 0.0f));
+    prog.setUniform("lights[2].La", vec3(0.25f, 0.0f, 0.0f));
+
+    prog.setUniform("lights[0].Ld", vec3(0.0f, 0.0f, 0.8f));
+    prog.setUniform("lights[1].Ld", vec3(0.0f, 0.8f, 0.0f));
+    prog.setUniform("lights[2].Ld", vec3(0.8f, 0.0f, 0.0f));
+
+    prog.setUniform("lights[0].Ls", vec3(0.0f, 0.0f, 0.6f));
+    prog.setUniform("lights[1].Ls", vec3(0.0f, 0.6f, 0.0f));
+    prog.setUniform("lights[2].Ls", vec3(0.6f, 0.0f, 0.0f));
 
     float weights[5], sum, sigma2 = 8.0f;
     // Compute and sum the weights

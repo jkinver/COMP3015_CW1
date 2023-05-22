@@ -2,7 +2,7 @@
 
 in vec4 FragPosition;
 in vec3 FragNormal;
-//in vec2 TexCoord;
+in vec2 TexCoord;
 
 layout (binding = 0 ) uniform sampler2D Tex1;
 //layout (binding = 1 ) uniform sampler2D Tex2;
@@ -10,7 +10,6 @@ layout (binding = 0 ) uniform sampler2D Tex1;
 layout (location = 0) out vec4 FragColor;
 
 vec3 Colour;
-vec3 SpotColour;
 
 uniform float EdgeThreshold;
 uniform int Pass;
@@ -24,7 +23,7 @@ uniform struct LightInfo
     vec3 La;            //ambient light
     vec3 Ld;            //diffuse light
     vec3 Ls;            //specular light
-}   light;
+}   lights[3];
 
 uniform struct MaterialInfo
 {
@@ -34,34 +33,23 @@ uniform struct MaterialInfo
     float Shininess;    //material shininess
 }   Material;
 
-uniform struct SpotInfo
+vec3 BlinnPhong(int light, vec3 n, vec4 pos)
 {
-    vec4 Position;      //spotlight position
-    vec3 Direction;     //spotlight direction
-    float Cutoff;       //spotlight cutoff angle
-    vec3 La;            //spotlight ambient
-    vec3 Ld;            //spotlight diffuse
-    vec3 Ls;            //spotlight specular
-    float Exponent;
-}   Spot;
-
-vec3 BlinnPhong(vec3 n, vec4 pos)
-{
-    //vec3 texColour = texture(Tex1, TexCoord).rgb;
+    vec3 texColour = texture(Tex1, TexCoord).rgb;
     //vec4 texColour2 = texture(Tex2, TexCoord);
     //vec3 mixedColour = mix(texColour.rgb, texColour2.rgb, texColour2.a);
 
-    vec3 ambient = light.La * Material.Ka; //* texColour;
-    vec3 s = normalize(vec3(light.Position - pos));
+    vec3 ambient = lights[light].La * Material.Ka * texColour;
+    vec3 s = normalize(vec3(lights[light].Position - pos));
     float dotProduct = max(dot(s, n), 0.0);
-    vec3 diffuse = light.Ld * Material.Kd * dotProduct; //* texColour;
+    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct * texColour;
     vec3 specular = vec3(0.0);
     
     if (dotProduct > 0.0)
     {
         vec3 v = normalize(-pos.xyz);
         vec3 h = normalize(v + s);
-        specular = light.Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
+        specular = lights[light].Ls * Material.Ks * pow(max(dot(h, n), 0.0), Material.Shininess);
     }
     
     return ambient + diffuse + specular;
@@ -74,7 +62,10 @@ float Luminance(vec3 color)
 
 vec4 Pass1()
 {
-    return vec4(BlinnPhong(normalize(FragNormal), FragPosition), 1.0f);
+    for (int i = 0; i < 3; i++)
+    {
+        return vec4(BlinnPhong(i, normalize(FragNormal), FragPosition), 1.0f);
+    }
 }
 
 vec4 Pass2()
@@ -110,11 +101,13 @@ vec4 Pass3()
 void main() 
 {
     Colour = vec3(0.0);
-    SpotColour = vec3(0.0);
+    
+    //for (int i = 0; i < 3; i++)
+    //{
+    //    FragColor += vec4(BlinnPhong(i, FragNormal, FragPosition), 1.0);
+    //}
 
-    Colour += BlinnPhong(FragNormal, FragPosition);
-
-    //----------Edge Detection bit-------------
+    //----------Gaussian Blur passes-------------
     if (Pass == 1)
     {
         FragColor = Pass1();
@@ -127,4 +120,6 @@ void main()
     {
         FragColor = Pass3();
     }
+
+    
 }
