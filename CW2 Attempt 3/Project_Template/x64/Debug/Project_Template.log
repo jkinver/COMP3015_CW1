@@ -1,0 +1,4 @@
+﻿  scenebasic_uniform.cpp
+C:\UniGitHub\COMP3015_CW1\CW2 Attempt 3\Project_Template\scenebasic_uniform.cpp(22,31): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\UniGitHub\COMP3015_CW1\CW2 Attempt 3\Project_Template\scenebasic_uniform.cpp(22,25): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Project_Template.vcxproj -> C:\UniGitHub\COMP3015_CW1\CW2 Attempt 3\Project_Template\x64\Debug\Project_Template.exe
