@@ -6,7 +6,7 @@ layout (location = 1) in vec3 VertexNormal;
 
 out vec4 FragPosition;
 out vec3 FragNormal;
-out vec2 TexCoord;
+//out vec2 TexCoord;
 
 uniform mat4 ModelViewMatrix;
 uniform mat3 NormalMatrix;

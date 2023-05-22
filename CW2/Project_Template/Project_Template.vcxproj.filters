@@ -66,7 +66,7 @@
     <ClCompile Include="helper\texture.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="helper\sphere.cpp">
+    <ClCompile Include="..\..\CW2\Project_Template\helper\sphere.cpp">
       <Filter>helper</Filter>
     </ClCompile>
   </ItemGroup>
@@ -133,10 +133,10 @@
     <ClInclude Include="helper\texture.h">
       <Filter>helper</Filter>
     </ClInclude>
-    <ClInclude Include="helper\random.h">
+    <ClInclude Include="..\..\CW2\Project_Template\helper\random.h">
       <Filter>helper</Filter>
     </ClInclude>
-    <ClInclude Include="helper\sphere.h">
+    <ClInclude Include="..\..\CW2\Project_Template\helper\sphere.h">
       <Filter>helper</Filter>
     </ClInclude>
   </ItemGroup>

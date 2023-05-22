@@ -19,11 +19,15 @@ class SceneBasic_Uniform : public Scene
 {
 private:
     GLSLProgram prog;
-    GLuint fsQuad, intermediateTex, renderTex, renderFBO, intermediateFBO;
+    GLuint fsQuad, fboHandle, renderTex;
 
-    //Torus torus;
-    //Teapot teapot;
+    /*Torus torus;
+    Teapot teapot;*/
     Plane plane;
+
+    float angle;
+    float tPrev, rotSpeed;
+
     unique_ptr<ObjMesh> mesh;
     //Cube cube;
 
@@ -31,8 +35,6 @@ private:
     void setupFBO();
     void Pass1();
     void Pass2();
-    void Pass3();
-    float Gauss(float, float);
 
 public:
     SceneBasic_Uniform();
