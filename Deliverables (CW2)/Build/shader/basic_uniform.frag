@@ -2,12 +2,19 @@
 
 in vec4 FragPosition;
 in vec3 FragNormal;
-in vec2 TexCoord;
+//in vec2 TexCoord;
 
 layout (binding = 0 ) uniform sampler2D Tex1;
-layout (binding = 1 ) uniform sampler2D Tex2;
+//layout (binding = 1 ) uniform sampler2D Tex2;
 
 layout (location = 0) out vec4 FragColor;
+
+uniform float EdgeThreshold;
+uniform int Pass;
+
+const vec3 luminance = vec3(0.2126, 0.7152, 0.0722);
+
+vec4 passArray[3];
 
 vec3 Colour;
 vec3 SpotColour;
@@ -59,14 +66,14 @@ vec3 Phong(int light, vec3 n, vec4 pos)
 
 vec3 BlinnPhong(int light, vec3 n, vec4 pos)
 {
-    vec3 texColour = texture(Tex1, TexCoord).rgb;
+    //vec3 texColour = texture(Tex1, TexCoord).rgb;
     //vec4 texColour2 = texture(Tex2, TexCoord);
     //vec3 mixedColour = mix(texColour.rgb, texColour2.rgb, texColour2.a);
 
-    vec3 ambient = lights[light].La * Material.Ka * texColour;
+    vec3 ambient = lights[light].La * Material.Ka; //* texColour;
     vec3 s = normalize(vec3(lights[light].Position - pos));
     float dotProduct = max(dot(s, n), 0.0);
-    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct * texColour;
+    vec3 diffuse = lights[light].Ld * Material.Kd * dotProduct; //* texColour;
     vec3 specular = vec3(0.0);
     
     if (dotProduct > 0.0)
@@ -111,18 +118,77 @@ vec3 BlinnPhongSpot(vec3 n, vec4 pos)
     return ambient + diffuse + specular;
 }
 
-void main() 
+float Luminance(vec3 color)
 {
-    Colour = vec3(0.0);
-    SpotColour = vec3(0.0);
+    return dot(luminance, color);
+}
 
-    //for loop for adding each component for the RGB of the model
+vec4[3] Pass1()
+{
     for (int i = 0; i < 3; i++)
     {
-        Colour += BlinnPhong(i, FragNormal, FragPosition);
+        passArray[i] = vec4(BlinnPhong(i, FragNormal, FragPosition), 1.0);
     }
 
-    FragColor = vec4(Colour, 1.0); //displaying the finalised colour
+    return passArray;
+}
+
+vec4 Pass2()
+{
+    //we grab a pixel to check if edge
+    ivec2 pix = ivec2(gl_FragCoord.xy); 
+
+    //pick neighbouring pixels for convolution filter
+    float s00 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,1)).rgb);
+    float s10 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,0)).rgb);
+    float s20 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(-1,-1)).rgb);
+    float s01 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(0,1)).rgb);
+    float s21 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(0,-1)).rgb);
+    float s02 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,1)).rgb);
+    float s12 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,0)).rgb);
+    float s22 = Luminance(texelFetchOffset(Tex1, pix, 0, ivec2(1,-1)).rgb);
+
+    float sx = s00 + 2 * s10 + s20 - (s02 + 2 * s12 + s22);
+    float sy = s00 + 2 * s01 + s02 - (s20 + 2 * s21 + s22);
+
+    float g = sx * sx + sy * sy;
+
+    if(g > EdgeThreshold)
+    {
+        return vec4(1.0); //edge
+    }
+    else
+    {
+        return vec4(0.0,0.0,0.0,1.0); //no edge
+    }
+}
+
+void main() 
+{
+
+    if (Pass == 1)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            FragColor += Pass1()[i];
+        }
+    }
+    if (Pass == 2)
+    {
+        FragColor = Pass2();
+    }
+
+
+    //Colour = vec3(0.0);
+    //SpotColour = vec3(0.0);
+
+    //for loop for adding each component for the RGB of the model
+    //for (int i = 0; i < 3; i++)
+    //{
+    //    Colour += BlinnPhong(i, FragNormal, FragPosition);
+    //}
+
+    //FragColor = vec4(Colour, 1.0); //displaying the finalised colour
 
     //SpotColour = BlinnPhongSpot(FragNormal, FragPosition);
 
